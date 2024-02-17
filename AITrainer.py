@@ -4,6 +4,11 @@ import time
 import PoseModule as pm
 from flask import Flask, Blueprint, jsonify, request
 import threading
+import pymongo
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+
+accounts = client["Accounts"]
 
 
 
@@ -12,6 +17,7 @@ squats_counter = {'count': 0}
 crunch_counter = {'count': 0}
 left_counter = {'count': 0}
 right_counter = {'count': 0}
+pushup_counter = {'count': 0}
 
 class positionRecognition:
 
