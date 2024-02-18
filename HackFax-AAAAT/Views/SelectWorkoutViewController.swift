@@ -9,7 +9,7 @@ import UIKit
 
 class SelectWorkoutViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
-    let options = ["Squats", "Bicep Curls", "Crunches", "Pushups"]
+    let options = ["Squats", "Bicep Curls", "Crunches", "Pushups", "Overhead Press"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +60,6 @@ class SelectWorkoutViewController: UIViewController, UITableViewDelegate, UITabl
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 200
+        return 150
     }
 }

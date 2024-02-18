@@ -12,6 +12,8 @@ class WorkoutViewController: UIViewController {
     private var numCrunches: Int
     private var numLeftCurls: Int
     private var numRightCurls: Int
+    private var numPushups: Int
+    private var numPress: Int
     
     private let startButton: UIButton = {
         let button = UIButton(type: .system)
@@ -30,6 +32,8 @@ class WorkoutViewController: UIViewController {
         self.numCrunches = 0
         self.numLeftCurls = 0
         self.numRightCurls = 0
+        self.numPushups = 0
+        self.numPress = 0
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -323,6 +327,105 @@ class WorkoutViewController: UIViewController {
         }
     }
     
+    private func setNumPushups() {
+        let urlString = "\(Constants.baseURL)/get_number_pushups"
+
+        // Create URL object
+        if let url = URL(string: urlString) {
+            // Create URLSession
+            let session = URLSession(configuration: .default)
+            
+            // Create a data task
+            let task = session.dataTask(with: url) { (data, response, error) in
+                // Check for errors
+                if let error = error {
+                    print("Error: \(error)")
+                    return
+                }
+                
+                // Check if response contains data
+                guard let responseData = data else {
+                    print("Error: Did not receive data")
+                    return
+                }
+                
+                do {
+                    // Parse JSON data
+                    if let json = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: Any] {
+                        // Extract the count value
+                        if let count = json["count"] as? Int {
+                            self.numPushups = count
+                            // Use the count value as needed
+                            print("Count: \(count)")
+                            // Here you can store the count value in a variable or perform any other actions
+                        } else {
+                            print("Error: Count value not found in JSON")
+                        }
+                    } else {
+                        print("Error: Unable to parse JSON data")
+                    }
+                } catch {
+                    print("Error: \(error)")
+                }
+            }
+            
+            // Start the data task
+            task.resume()
+        } else {
+            print("Error: Invalid URL")
+        }
+    }
+    
+    
+    private func setNumPress() {
+        let urlString = "\(Constants.baseURL)/get_number_press"
+
+        // Create URL object
+        if let url = URL(string: urlString) {
+            // Create URLSession
+            let session = URLSession(configuration: .default)
+            
+            // Create a data task
+            let task = session.dataTask(with: url) { (data, response, error) in
+                // Check for errors
+                if let error = error {
+                    print("Error: \(error)")
+                    return
+                }
+                
+                // Check if response contains data
+                guard let responseData = data else {
+                    print("Error: Did not receive data")
+                    return
+                }
+                
+                do {
+                    // Parse JSON data
+                    if let json = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: Any] {
+                        // Extract the count value
+                        if let count = json["count"] as? Int {
+                            self.numPress = count
+                            // Use the count value as needed
+                            print("Count: \(count)")
+                            // Here you can store the count value in a variable or perform any other actions
+                        } else {
+                            print("Error: Count value not found in JSON")
+                        }
+                    } else {
+                        print("Error: Unable to parse JSON data")
+                    }
+                } catch {
+                    print("Error: \(error)")
+                }
+            }
+            
+            // Start the data task
+            task.resume()
+        } else {
+            print("Error: Invalid URL")
+        }
+    }
+    
     private func saveExerciseDataToMongoDB(exerciseName: String, completeReps: Int, partialReps: Int) {
         // Create the URL
         guard let url = URL(string: "\(Constants.baseURL)/add_new_exercise") else {
@@ -463,8 +566,24 @@ class WorkoutViewController: UIViewController {
                 self.saveExerciseDataToMongoDB(exerciseName: "Crunch", completeReps: self.numCrunches, partialReps: self.numCrunches + randomInt)
                 self.navigationController?.popViewController(animated: true)
             }
-        } else{
-            print("hey")
+        } else if(self.exercise == 3){
+            setNumPushups()
+            let randomInt = Int.random(in: 0..<2)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                // Delay the presentation of the alert by one second
+                WorkoutViewController.showBasicAlert(on: self, title: "Summary", message: "You did \(self.numPushups) Pushups with good form")
+                self.saveExerciseDataToMongoDB(exerciseName: "Pushups", completeReps: self.numPushups, partialReps: self.numPushups + randomInt)
+                self.navigationController?.popViewController(animated: true)
+            }
+        } else {
+            setNumPress()
+            let randomInt = Int.random(in: 0..<2)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                // Delay the presentation of the alert by one second
+                WorkoutViewController.showBasicAlert(on: self, title: "Summary", message: "You did \(self.numPress) Overhead Presses with good form")
+                self.saveExerciseDataToMongoDB(exerciseName: "Overhead Press", completeReps: self.numPress, partialReps: self.numPress + randomInt)
+                self.navigationController?.popViewController(animated: true)
+            }
         }
         
         

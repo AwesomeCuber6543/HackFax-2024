@@ -9,7 +9,7 @@ import UIKit
 
 import UIKit
 
-struct ExerciseEntry: Decodable {
+struct ExerciseEntry: Decodable, Encodable {
     let date: String
     let exerciseName: String
     let completeReps: Int
@@ -29,8 +29,10 @@ class ExerciseHistoryViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Exercise History"
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.allowsSelection = false
         // Fetch exercise data from MongoDB and populate exerciseEntries dictionary
         fetchExerciseData()
     }
@@ -103,5 +105,74 @@ class ExerciseHistoryViewController: UITableViewController {
         let dates = Array(exerciseEntries.keys)
         return dates[section]
     }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let dates = Array(exerciseEntries.keys)
+            let date = dates[indexPath.section]
+            if var entries = exerciseEntries[date] {
+                let entryToDelete = entries.remove(at: indexPath.row)
+                exerciseEntries[date] = entries
+                // Call function to delete entry from MongoDB
+                print(entryToDelete)
+                deleteExerciseEntry(entryToDelete)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+        }
+    }
+    
+    // Function to delete exercise entry from MongoDB
+    func deleteExerciseEntry(_ entry: ExerciseEntry) {
+        guard let url = URL(string: "\(Constants.baseURL)/delete_exercise_entry") else {
+            print("Invalid URL")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create a dictionary with required fields
+        let entryData: [String: Any] = [
+            "date": entry.date,
+            "exercise_name": entry.exerciseName,
+            "complete_reps": entry.completeReps,
+            "partial_reps": entry.partialReps
+        ]
+        
+        // Debugging: Print the contents of entryData
+        print("Entry data:", entryData)
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: entryData)
+            request.httpBody = jsonData
+        } catch {
+            print("Error encoding exercise entry data:", error.localizedDescription)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("No HTTP response received")
+                return
+            }
+            
+            if let error = error {
+                print("Error deleting exercise entry:", error.localizedDescription)
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                print("Exercise entry deleted successfully")
+            } else {
+                print("Failed to delete exercise entry. Status code: \(httpResponse.statusCode)")
+                if let responseData = data, let responseString = String(data: responseData, encoding: .utf8) {
+                    print("Response data:", responseString)
+                }
+            }
+        }.resume()
+    }
+
+
 }
 

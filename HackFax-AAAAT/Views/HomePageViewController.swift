@@ -12,10 +12,18 @@ class HomePageViewController: UIViewController {
     
     private let welcomeLabel: UILabel = {
        let welcomeLabel = UILabel()
-        welcomeLabel.text = "HELLO YAHIA!"
+        welcomeLabel.text = "HELLO YAHIA"
         welcomeLabel.textColor = Constants.mainGreen
-        welcomeLabel.font = .italicSystemFont(ofSize: 50)
+        welcomeLabel.font = .systemFont(ofSize: 50)
         return welcomeLabel
+    }()
+    
+    private let welcomeLabel2: UILabel = {
+        let welcomeLabel2 = UILabel()
+        welcomeLabel2.text = "Let's Workout!"
+        welcomeLabel2.textColor = Constants.mainGreen
+        welcomeLabel2.font = .systemFont(ofSize: 30)
+        return welcomeLabel2
     }()
     
     private let newWorkoutButton: UIButton = {
@@ -92,7 +100,7 @@ class HomePageViewController: UIViewController {
         
         let tv = UITextView()
         
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(red: 255/255, green: 65/255, blue: 54/255, alpha: 1)]
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: Constants.mainGreen]
         tv.backgroundColor = .clear
         tv.attributedText = attributedString
         tv.textColor = .black
@@ -132,6 +140,7 @@ class HomePageViewController: UIViewController {
         self.view.addSubview(nutritionImage)
         self.view.addSubview(totalCaloriesLabel)
         self.view.addSubview(termsTextView)
+        self.view.addSubview(welcomeLabel2)
         
         
         newWorkoutButton.translatesAutoresizingMaskIntoConstraints = false
@@ -145,22 +154,26 @@ class HomePageViewController: UIViewController {
         personalImage.translatesAutoresizingMaskIntoConstraints = false
         totalCaloriesLabel.translatesAutoresizingMaskIntoConstraints = false
         termsTextView.translatesAutoresizingMaskIntoConstraints = false
-        
+        welcomeLabel2.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             
-            self.welcomeLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 150),
+            self.welcomeLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 130),
 //            self.welcomeLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10),
 //            self.welcomeLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10),
             self.welcomeLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             self.welcomeLabel.heightAnchor.constraint(equalToConstant: 50),
+            
+            self.welcomeLabel2.topAnchor.constraint(equalTo: self.welcomeLabel.bottomAnchor, constant: 20),
+            self.welcomeLabel2.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            self.welcomeLabel2.heightAnchor.constraint(equalToConstant: 50),
         
-            self.newWorkoutButton.topAnchor.constraint(equalTo: self.welcomeLabel.topAnchor, constant: 150),
+            self.newWorkoutButton.topAnchor.constraint(equalTo: self.welcomeLabel.topAnchor, constant: 170),
             self.newWorkoutButton.widthAnchor.constraint(equalToConstant: 170),
             self.newWorkoutButton.heightAnchor.constraint(equalToConstant: 170),
             self.newWorkoutButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 25),
 
-            self.oldWorkoutButton.topAnchor.constraint(equalTo: self.welcomeLabel.topAnchor, constant: 150),
+            self.oldWorkoutButton.topAnchor.constraint(equalTo: self.welcomeLabel.topAnchor, constant: 170),
             self.oldWorkoutButton.widthAnchor.constraint(equalToConstant: 170),
             self.oldWorkoutButton.heightAnchor.constraint(equalToConstant: 170),
             self.oldWorkoutButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -25),

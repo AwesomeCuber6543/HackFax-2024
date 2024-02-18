@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     
     private let usernameLabel = CustomTextField(fieldType: .username)
     private let passwordLabel = CustomTextField(fieldType: .password)
-    private let loginButton = CustomButton(title: "Log In",hasBackground: true ,fontsize: .med, buttonColor: UIColor(red: 32/255, green: 97/255, blue: 0/255, alpha: 1), titleColor: .white)
+    private let loginButton = CustomButton(title: "Log In", hasBackground: true , fontsize: .med, buttonColor: UIColor(red: 32/255, green: 97/255, blue: 0/255, alpha: 1), titleColor: .white)
     
     
     

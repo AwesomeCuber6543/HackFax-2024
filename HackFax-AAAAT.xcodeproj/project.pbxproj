@@ -30,7 +30,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		441A57332B749979003B9A18 /* HackFax-AAAAT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "HackFax-AAAAT.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		441A57332B749979003B9A18 /* REPS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = REPS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		441A57362B749979003B9A18 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		441A57382B749979003B9A18 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		441A573A2B749979003B9A18 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -76,7 +76,7 @@
 		441A57342B749979003B9A18 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				441A57332B749979003B9A18 /* HackFax-AAAAT.app */,
+				441A57332B749979003B9A18 /* REPS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,7 +158,7 @@
 			);
 			name = "HackFax-AAAAT";
 			productName = "HackFax-AAAAT";
-			productReference = 441A57332B749979003B9A18 /* HackFax-AAAAT.app */;
+			productReference = 441A57332B749979003B9A18 /* REPS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -381,7 +381,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Com.SoundByte.HackFax-AAAAT";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = REPS;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -409,7 +409,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Com.SoundByte.HackFax-AAAAT";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = REPS;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

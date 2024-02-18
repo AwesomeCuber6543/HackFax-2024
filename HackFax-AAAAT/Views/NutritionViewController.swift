@@ -20,8 +20,7 @@ class NutritionViewController: UIViewController, UITableViewDataSource, UITableV
         let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.isScrollEnabled = true
-//        tableView.allowsSelection = true
-//        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -74,7 +73,7 @@ class NutritionViewController: UIViewController, UITableViewDataSource, UITableV
     private let submitButton: UIButton = {
         let button = UIButton()
         button.setTitle("Submit", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = Constants.mainGreen
         button.layer.cornerRadius = 8
         button.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
         return button
