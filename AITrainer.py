@@ -9,22 +9,25 @@ import pymongo
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 
 accounts = client["Accounts"]
+db1 = client["ExerciseDB"] 
+collection = db1["exercises"]
+db2 = client["Food"]
 
 
 
 app = Flask(__name__)
-squats_counter = {'count': 0}
-crunch_counter = {'count': 0}
-left_counter = {'count': 0}
-right_counter = {'count': 0}
-pushup_counter = {'count': 0}
+squats_counter = {'count': 0, 'justReset':False}
+crunch_counter = {'count': 0, 'justReset':False}
+left_counter = {'count': 0, 'justReset':False}
+right_counter = {'count': 0, 'justReset':False}
+pushup_counter = {'count': 0, 'justReset':False}
 
 class positionRecognition:
 
     def runRecognition(self):
 
 
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
         detector = pm.poseDetector()
         countLeft = 0
         countRight = 0
@@ -36,6 +39,20 @@ class positionRecognition:
         dirSquat = 0
         pTime = 0
         while True:
+            if(squats_counter['justReset'] == True):
+                countSquat = 0
+                squats_counter['justReset'] = False
+            if(left_counter['justReset'] == True):
+                countLeft = 0
+                left_counter['justReset'] = False
+            if(right_counter['justReset'] == True):
+                countRight = 0
+                right_counter['justReset'] = False
+            if(crunch_counter['justReset'] == True):
+                countCrunch = 0
+                crunch_counter['justReset'] = False
+
+            
             success, img = cap.read()
             img = cv2.resize(img, (1280, 720))
             img = detector.findPose(img, True)
@@ -131,8 +148,8 @@ class positionRecognition:
                             color, 4)
 
                 # Draw Curl Count
-                cv2.rectangle(img, (0, 450), (250, 720), (0, 255, 0), cv2.FILLED)
-                cv2.putText(img, str(int(countSquat)), (45, 670), cv2.FONT_HERSHEY_PLAIN, 15,
+                # cv2.rectangle(img, (0, 450), (250, 720), (0, 255, 0), cv2.FILLED)
+                cv2.putText(img, str(int(countLeft)), (45, 670), cv2.FONT_HERSHEY_PLAIN, 15,
                             (255, 0, 0), 25)
                 # cv2.putText(img, str(int(countRight)), (250, 670), cv2.FONT_HERSHEY_PLAIN, 15,
                 #             (255, 0, 0), 25)
@@ -154,11 +171,26 @@ def run_cv():
     mr.runRecognition()
 
 
+@app.route('/start_workout', methods=['GET'])
+def start_workout():
+
+        try:
+            squats_counter['justReset'] = True
+            crunch_counter['justReset'] = True
+            left_counter['justReset'] = True
+            right_counter['justReset'] = True
+            return jsonify({'message': 'Workout Started'}), 200
+        except:
+
+        # else:
+            return jsonify({'message': 'Object not found'}), 404
+
 @app.route('/get_number_squats', methods=['GET'])
 def get_number_squats():
 
         try:
-            return jsonify(squats_counter), 200
+            # print(squats_counter)
+            return jsonify({'count':squats_counter['count']}), 200
         except:
 
         # else:
@@ -168,18 +200,17 @@ def get_number_squats():
 def get_number_left_bicep():
 
         try:
-            return jsonify(left_counter), 200
+            return jsonify({'count':left_counter['count']}), 200
         except:
 
         # else:
             return jsonify({'message': 'Object not found'}), 404
-        
 
 @app.route('/get_number_right_bicep', methods=['GET'])
 def get_number_right_bicep():
 
         try:
-            return jsonify(right_counter), 200
+            return jsonify({'count':right_counter['count']}), 200
         except:
 
         # else:
@@ -189,11 +220,64 @@ def get_number_right_bicep():
 def get_number_crunches():
 
         try:
-            return jsonify(crunch_counter), 200
+            return jsonify({'count':crunch_counter['count']}), 200
         except:
-
-        # else:
             return jsonify({'message': 'Object not found'}), 404
+        
+@app.route('/add_new_exercise', methods=['POST'])
+def add_new_exercise():
+    try:
+        data = request.json
+        collection.insert_one(data)
+        return jsonify({'message': 'Exercise added successfully'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+    
+@app.route('/add_nutrition_data', methods=['POST'])
+def add_nutrition_data():
+    try:
+        data = request.json
+        db2["nutrition_data"].insert_one(data)
+        return jsonify({'message': 'Nutrition data added successfully'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+    
+@app.route('/get_all_nutrition_data', methods=['GET'])
+def get_all_nutrition_data():
+    try:
+        nutrition_data = list(db2["nutrition_data"].find({}, {'_id': 0}))
+        return jsonify(nutrition_data), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+    
+@app.route('/delete_all_nutrition_data', methods=['POST'])
+def delete_all_nutrition_data():
+    try:
+        db2["nutrition_data"].delete_many({})
+        return jsonify({'message': 'All nutrition data deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+    
+@app.route('/total_calories', methods=['GET'])
+def total_calories():
+    try: 
+        total_calories = 0
+        cursor = db2["nutrition_data"].find({}, {'calories': 1, '_id': 0})
+        for document in cursor:
+            calories = document.get('calories')
+            if calories and calories != '-':
+                total_calories += int(calories)
+        return jsonify({'total_calories': total_calories}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/get_exercise_data', methods=['GET'])
+def get_exercise_data():
+    try:
+        exercise_data = list(collection.find({}, {'_id': 0}))
+        return jsonify(exercise_data), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 
 
