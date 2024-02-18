@@ -8,10 +8,27 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    
+    
+    private let 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        self.view.backgroundColor = .systemRed
+        
+        
+    }
+    
+    func setupUI(){
+        
+        
+        
+        
+        
+        
+        
+        
     }
 
 
