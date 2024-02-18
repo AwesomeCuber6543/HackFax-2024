@@ -21,6 +21,7 @@ crunch_counter = {'count': 0, 'justReset':False}
 left_counter = {'count': 0, 'justReset':False}
 right_counter = {'count': 0, 'justReset':False}
 pushup_counter = {'count': 0, 'justReset':False}
+overheadpress_counter = {'count': 0, 'justReset':False}
 
 class positionRecognition:
 
@@ -33,10 +34,15 @@ class positionRecognition:
         countRight = 0
         countCrunch = 0
         countSquat = 0
+        countPushup = 0
+        countPress = 0
         dirLeft = 0
         dirRight = 0
         dirCrunch = 0
         dirSquat = 0
+        dirPushup = 0
+        dirPress = 0
+        maxPress = 0
         pTime = 0
         while True:
             if(squats_counter['justReset'] == True):
@@ -51,6 +57,12 @@ class positionRecognition:
             if(crunch_counter['justReset'] == True):
                 countCrunch = 0
                 crunch_counter['justReset'] = False
+            if(pushup_counter['justReset'] == True):
+                countPushup = 0
+                pushup_counter['justReset'] = False
+            if(overheadpress_counter['justReset'] == True):
+                countPress = 0
+                overheadpress_counter['justReset'] = False
 
             
             success, img = cap.read()
@@ -73,6 +85,14 @@ class positionRecognition:
                 # Crunch
                 angleCrunch = detector.findAngle(img, 11, 23, 25)
                 perCrunch = np.interp(angleCrunch, (240, 290), (0, 100))
+
+                #Pushup
+                anglePushup = detector.findAngle(img, 12, 14, 16)
+                perPushup = np.interp(anglePushup, (180, 250), (0, 100))
+
+                # overhead press
+                anglePress = detector.findAngle(img, 12, 14, 16)
+                perPress = np.interp(anglePress, (300, 220), (0, 100))
 
 
                 # Check for the dumbbell curls for left arm
@@ -124,12 +144,38 @@ class positionRecognition:
                     if dirSquat == 1:
                         countSquat += 0.5
                         dirSquat = 0
-                # print(countLeft)
+
+
+                # Pushup
+                if perPushup == 100:
+                    color = (0, 0, 0)
+                    if dirPushup == 0:
+                        countPushup += 0.5
+                        dirPushup = 1
+                if perPushup == 0:
+                    color = (0, 255, 255)
+                    if dirPushup == 1:
+                        countPushup += 0.5
+                        dirPushup = 0
+
+                # Overhead Press
+                if perPress == 100:
+                    color = (0, 0, 0)
+                    if dirPress == 0:
+                        countPress += 0.5
+                        dirPress = 1
+                if perPress == 0:
+                    color = (0, 255, 255)
+                    if dirPress == 1:
+                        countPress += 0.5
+                        dirPress = 0
                         
                 squats_counter['count'] = countSquat
                 left_counter['count'] = countLeft
                 right_counter['count'] = countRight
                 crunch_counter['count'] = countCrunch
+                pushup_counter['count'] = countPushup
+                overheadpress_counter['count'] = countPress
 
                 # Draw Bar
                 # cv2.rectangle(img, (1100, 100), (1175, 650), color, 2)
@@ -149,7 +195,7 @@ class positionRecognition:
 
                 # Draw Curl Count
                 # cv2.rectangle(img, (0, 450), (250, 720), (0, 255, 0), cv2.FILLED)
-                cv2.putText(img, str(int(countLeft)), (45, 670), cv2.FONT_HERSHEY_PLAIN, 15,
+                cv2.putText(img, str(int(countPress)), (45, 670), cv2.FONT_HERSHEY_PLAIN, 15,
                             (255, 0, 0), 25)
                 # cv2.putText(img, str(int(countRight)), (250, 670), cv2.FONT_HERSHEY_PLAIN, 15,
                 #             (255, 0, 0), 25)
@@ -179,6 +225,8 @@ def start_workout():
             crunch_counter['justReset'] = True
             left_counter['justReset'] = True
             right_counter['justReset'] = True
+            pushup_counter['justReset'] = True
+            overheadpress_counter['justReset'] = True
             return jsonify({'message': 'Workout Started'}), 200
         except:
 
@@ -221,6 +269,22 @@ def get_number_crunches():
 
         try:
             return jsonify({'count':crunch_counter['count']}), 200
+        except:
+            return jsonify({'message': 'Object not found'}), 404
+        
+@app.route('/get_number_pushups', methods=['GET'])
+def get_number_pushups():
+
+        try:
+            return jsonify({'count':pushup_counter['count']}), 200
+        except:
+            return jsonify({'message': 'Object not found'}), 404
+        
+@app.route('/get_number_press', methods=['GET'])
+def get_number_press():
+
+        try:
+            return jsonify({'count':overheadpress_counter['count']}), 200
         except:
             return jsonify({'message': 'Object not found'}), 404
         
@@ -275,9 +339,33 @@ def total_calories():
 def get_exercise_data():
     try:
         exercise_data = list(collection.find({}, {'_id': 0}))
+        # print(exercise_data)
         return jsonify(exercise_data), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 500
+    
+@app.route('/delete_exercise_entry', methods=['POST'])
+def delete_exercise_entry():
+    try:
+        data = request.json
+        print(data)
+        date = data.get('date')
+        exercise_name = data.get('exercise_name')
+        completeReps = data.get('complete_reps')  # Include reps in the deletion criteria
+        partialReps = data.get('partial_reps')
+        
+        if not date or not exercise_name or completeReps is None:
+            return jsonify({'message': 'Date, exercise name, and reps are required fields'}), 400
+        
+        result = collection.delete_one({'date': date, 'exercise_name': exercise_name, 'complete_reps': completeReps, 'partial_reps': partialReps})
+        
+        if result.deleted_count == 1:
+            return jsonify({'message': 'Exercise entry deleted successfully'}), 200
+        else:
+            return jsonify({'message': 'Exercise entry not found'}), 404
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+
 
 
 
